@@ -3,10 +3,7 @@ const cors = require("cors");
 const multer = require("multer");
 const pdfParse = require("pdf-parse");
 const fs = require("fs");
-const atsScore = Math.min(
-  Math.round((detectedSkills.length / skillDatabase.length) * 100),
-  100
-);
+
 const skillDatabase = [
   "JavaScript",
   "React",
@@ -32,42 +29,30 @@ const upload = multer({ dest: "uploads/" });
 
 app.post("/upload", upload.single("resume"), async (req, res) => {
   try {
-    console.log("REQ.FILE:", req.file);
-
     if (!req.file) {
       return res.status(400).json({ error: "No file received" });
     }
 
-    const filePath = req.file.path;
-    const dataBuffer = fs.readFileSync(filePath);
-
-    console.log("File read successfully");
-
+    const dataBuffer = fs.readFileSync(req.file.path);
     const pdfData = await pdfParse(dataBuffer);
-
-    console.log("PDF parsed successfully");
-
     const resumeText = pdfData.text;
-    
 
-   const detectedSkills = skillDatabase.filter(skill =>
-  resumeText.toLowerCase().includes(skill.toLowerCase())
-);
+    const detectedSkills = skillDatabase.filter(skill =>
+      resumeText.toLowerCase().includes(skill.toLowerCase())
+    );
 
-const atsScore = Math.min(
-  Math.round((detectedSkills.length / skillDatabase.length) * 100),
-  100
-);
+    const atsScore = Math.min(
+      Math.round((detectedSkills.length / skillDatabase.length) * 100),
+      100
+    );
 
-res.json({
-  success: true,
-  message: "Resume analyzed successfully",
-  atsScore,
-  skills: detectedSkills,
-  totalSkillsFound: detectedSkills.length
-});
-
-   
+    res.json({
+      success: true,
+      message: "Resume analyzed successfully",
+      atsScore,
+      skills: detectedSkills,
+      totalSkillsFound: detectedSkills.length
+    });
 
   } catch (error) {
     console.error("SERVER ERROR:", error);
@@ -76,7 +61,6 @@ res.json({
 });
 
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
