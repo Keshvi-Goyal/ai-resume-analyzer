@@ -144,14 +144,66 @@ app.post("/upload", upload.single("resume"), async (req, res) => {
     const sectionScore =
       (hasProjects + hasExperience + hasEducation) / 3 * 100;
 
-    const atsScore = Math.round(
+    const baseScore = Math.round(
       technicalScore * technicalWeight +
       softScore * softWeight +
       sectionScore * sectionWeight
     );
 
     /* ===============================
-       📈 QUALITY ANALYSIS
+       🔎 ADVANCED INTELLIGENCE
+    ================================= */
+
+    // Achievement detection (numbers like 20%, 5x, etc.)
+    const numberMatches = resumeText.match(/\d+%|\d+\+?|\d+x/gi);
+    const achievementScore = numberMatches
+      ? Math.min(numberMatches.length * 5, 15)
+      : 0;
+
+    // Experience detection (2 years, 3+ years, etc.)
+    const experienceMatch = resumeText.match(/\d+\+?\s?(years|year)/gi);
+    const experienceScore = experienceMatch ? 10 : 0;
+
+    // Leadership detection
+    const leadershipKeywords = [
+      "led", "managed", "mentored",
+      "supervised", "coordinated",
+      "initiated", "directed"
+    ];
+
+    const detectedLeadership = leadershipKeywords.filter(word =>
+      resumeText.includes(word)
+    );
+
+    const leadershipScore =
+      detectedLeadership.length > 0 ? 10 : 0;
+
+    // Action verb strength
+    const strongVerbs = [
+      "developed", "designed", "implemented",
+      "optimized", "improved", "engineered",
+      "analyzed", "created"
+    ];
+
+    const actionVerbMatches = strongVerbs.filter(word =>
+      resumeText.includes(word)
+    );
+
+    const actionScore =
+      actionVerbMatches.length > 3 ? 5 : 0;
+
+    // Final Enhanced Score
+    const enhancedScore = Math.min(
+      baseScore +
+        achievementScore +
+        experienceScore +
+        leadershipScore +
+        actionScore,
+      100
+    );
+
+    /* ===============================
+       📈 SUGGESTIONS
     ================================= */
 
     let suggestions = [];
@@ -174,6 +226,12 @@ app.post("/upload", upload.single("resume"), async (req, res) => {
     if (resumeText.length < 1500)
       suggestions.push("Resume content is short. Add more detailed achievements.");
 
+    if (achievementScore === 0)
+      suggestions.push("Include measurable achievements (%, numbers, impact).");
+
+    if (leadershipScore === 0)
+      suggestions.push("Highlight leadership or management experience.");
+
     /* ===============================
        🚀 RESPONSE
     ================================= */
@@ -181,11 +239,17 @@ app.post("/upload", upload.single("resume"), async (req, res) => {
     res.json({
       success: true,
       role,
-      atsScore,
+      atsScore: enhancedScore,
       breakdown: {
         technicalScore: Math.round(technicalScore),
         softScore: Math.round(softScore),
         sectionScore: Math.round(sectionScore)
+      },
+      advancedMetrics: {
+        achievementScore,
+        experienceScore,
+        leadershipScore,
+        actionScore
       },
       detectedTechnical,
       detectedSoft,
