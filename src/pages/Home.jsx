@@ -37,7 +37,13 @@ function Home() {
   }
 
   return (
-    <div style={{ background: "#0f172a", minHeight: "100vh", color: "white" }}>
+    <div
+      style={{
+        background: "#0f172a",
+        minHeight: "100vh",
+        color: "white",
+      }}
+    >
       <Navbar />
 
       <div style={{ textAlign: "center", paddingTop: "100px" }}>
@@ -75,13 +81,39 @@ function Home() {
 
         {/* RESULT SECTION */}
         {result && (
-          <div style={{ marginTop: "40px" }}>
-            <h2>ATS Score: {result.atsScore}%</h2>
-            <p>Total Skills Found: {result.totalSkillsFound}</p>
+          <div style={{ marginTop: "50px" }}>
+            <h2 style={{ fontSize: "2rem", marginBottom: "10px" }}>
+              ATS Score: {result.atsScore}%
+            </h2>
 
-            <h3>Detected Skills:</h3>
+            <p style={{ marginBottom: "20px" }}>
+              Total Skills Found: {result.totalSkillsFound}
+            </p>
+
+            {/* Detected Skills */}
+            <h3 style={{ marginBottom: "10px", color: "#4ade80" }}>
+              Detected Skills:
+            </h3>
+
             <ul style={{ listStyle: "none", padding: 0 }}>
               {result.skills.map((skill, index) => (
+                <li key={index}>{skill}</li>
+              ))}
+            </ul>
+
+            {/* Missing Skills */}
+            <h3
+              style={{
+                marginTop: "30px",
+                marginBottom: "10px",
+                color: "#f87171",
+              }}
+            >
+              Missing Skills:
+            </h3>
+
+            <ul style={{ listStyle: "none", padding: 0 }}>
+              {result.missingSkills.map((skill, index) => (
                 <li key={index}>{skill}</li>
               ))}
             </ul>
