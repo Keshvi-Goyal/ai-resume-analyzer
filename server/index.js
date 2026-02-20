@@ -48,17 +48,25 @@ app.post("/upload", upload.single("resume"), async (req, res) => {
     console.log("PDF parsed successfully");
 
     const resumeText = pdfData.text;
-    const detectedSkills = skillDatabase.filter(skill =>
-  resumeText.toLowerCase().includes(skill.toLowerCase())
-   );
+    
 
-   res.json({
+   const detectedSkills = skillDatabase.filter(skill =>
+  resumeText.toLowerCase().includes(skill.toLowerCase())
+);
+
+const atsScore = Math.min(
+  Math.round((detectedSkills.length / skillDatabase.length) * 100),
+  100
+);
+
+res.json({
   success: true,
   message: "Resume analyzed successfully",
   atsScore,
   skills: detectedSkills,
   totalSkillsFound: detectedSkills.length
 });
+
    
 
   } catch (error) {
