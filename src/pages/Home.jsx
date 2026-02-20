@@ -3,6 +3,8 @@ import Navbar from "../components/Navbar"
 
 function Home() {
   const [file, setFile] = useState(null)
+  const [result, setResult] = useState(null)
+  const [loading, setLoading] = useState(false)
 
   const handleUpload = async () => {
     if (!file) {
@@ -14,6 +16,8 @@ function Home() {
     formData.append("resume", file)
 
     try {
+      setLoading(true)
+
       const response = await fetch(
         "https://ai-resume-analyzer-x2mm.onrender.com/upload",
         {
@@ -23,11 +27,12 @@ function Home() {
       )
 
       const data = await response.json()
-      alert("Resume Uploaded Successfully!")
-      console.log(data)
+      setResult(data)
     } catch (error) {
       console.error("Error:", error)
       alert("Upload failed")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -65,8 +70,23 @@ function Home() {
             cursor: "pointer",
           }}
         >
-          Upload Resume
+          {loading ? "Analyzing..." : "Upload Resume"}
         </button>
+
+        {/* RESULT SECTION */}
+        {result && (
+          <div style={{ marginTop: "40px" }}>
+            <h2>ATS Score: {result.atsScore}%</h2>
+            <p>Total Skills Found: {result.totalSkillsFound}</p>
+
+            <h3>Detected Skills:</h3>
+            <ul style={{ listStyle: "none", padding: 0 }}>
+              {result.skills.map((skill, index) => (
+                <li key={index}>{skill}</li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   )

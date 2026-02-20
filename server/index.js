@@ -37,10 +37,17 @@ app.post("/upload", upload.single("resume"), async (req, res) => {
     const pdfData = await pdfParse(dataBuffer);
     const resumeText = pdfData.text;
 
+    // Detect skills
     const detectedSkills = skillDatabase.filter(skill =>
       resumeText.toLowerCase().includes(skill.toLowerCase())
     );
 
+    // Find missing skills
+    const missingSkills = skillDatabase.filter(skill =>
+      !detectedSkills.includes(skill)
+    );
+
+    // Calculate ATS score
     const atsScore = Math.min(
       Math.round((detectedSkills.length / skillDatabase.length) * 100),
       100
@@ -51,6 +58,7 @@ app.post("/upload", upload.single("resume"), async (req, res) => {
       message: "Resume analyzed successfully",
       atsScore,
       skills: detectedSkills,
+      missingSkills,
       totalSkillsFound: detectedSkills.length
     });
 
@@ -60,6 +68,7 @@ app.post("/upload", upload.single("resume"), async (req, res) => {
   }
 });
 
+// Root test route
 app.get("/", (req, res) => {
   res.send("Server is running");
 });
